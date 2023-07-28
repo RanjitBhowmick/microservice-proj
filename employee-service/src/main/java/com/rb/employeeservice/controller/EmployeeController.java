@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.rb.employeeservice.entities.AddressResponse;
 import com.rb.employeeservice.entities.Employee;
 import com.rb.employeeservice.entities.EmployeeResponse;
+import com.rb.employeeservice.feignclient.AddressClient;
 import com.rb.employeeservice.repository.EmployeeRepo;
 
 @RequestMapping(value = "/employeeservice")
@@ -32,14 +33,20 @@ public class EmployeeController {
 	private WebClient webClient;
 
 	@Autowired
+	private AddressClient addressClient;
+	
+	@Autowired
 	private ModelMapper modelmapper;
+	
+	
 
 	@GetMapping(value = "/getemployee/{id}")
 	public EmployeeResponse getEmployeeDetails(@PathVariable("id") long id) {
 		Employee emp = employeeRepo.findById(id).get();
 		EmployeeResponse empResponse = modelmapper.map(emp, EmployeeResponse.class);
 		/* AddressResponse addResponse = getDataUsingRestTemplate(id); */
-		AddressResponse addResponse = getDataUsingWebClient(id);
+		/* AddressResponse addResponse = getDataUsingWebClient(id); */
+		AddressResponse addResponse =addressClient.getAddressByEmployeeId(id);
 		empResponse.setAddressResponse(addResponse);
 		return empResponse;
 	}
