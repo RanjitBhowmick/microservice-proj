@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.rb.employeeservice.entities.AddressResponse;
 import com.rb.employeeservice.entities.Employee;
@@ -28,15 +29,27 @@ public class EmployeeController {
 	private RestTemplate restTemplate;
 
 	@Autowired
+	private WebClient webClient;
+
+	@Autowired
 	private ModelMapper modelmapper;
 
 	@GetMapping(value = "/getemployee/{id}")
 	public EmployeeResponse getEmployeeDetails(@PathVariable("id") long id) {
 		Employee emp = employeeRepo.findById(id).get();
 		EmployeeResponse empResponse = modelmapper.map(emp, EmployeeResponse.class);
-		AddressResponse addResponse = restTemplate.getForObject(addressServiceUrl, AddressResponse.class, id);
+		/* AddressResponse addResponse = getDataUsingRestTemplate(id); */
+		AddressResponse addResponse = getDataUsingWebClient(id);
 		empResponse.setAddressResponse(addResponse);
 		return empResponse;
+	}
+
+	private AddressResponse getDataUsingWebClient(long id) {
+		return webClient.get().uri("/getaddress/" + id).retrieve().bodyToMono(AddressResponse.class).block();
+	}
+
+	private AddressResponse getDataUsingRestTemplate(long id) {
+		return restTemplate.getForObject(addressServiceUrl + "/getaddress/{id}", AddressResponse.class, id);
 	}
 
 }
