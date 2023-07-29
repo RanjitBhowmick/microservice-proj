@@ -1,3 +1,5 @@
 # microservice-proj
 
-I have created 2 services which will be communicating with each other using different rest clients like rest template, webclient, feign clients. Also will implement the discovery service and client side load balancing.
+In this branch, i have created a discovery service project which will work as eureka server.
+
+The employee and address service is now work as eureka client and register them with eureka server. Also added client side load balancer while calling address service using rest template.
